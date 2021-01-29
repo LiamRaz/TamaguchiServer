@@ -30,16 +30,14 @@ namespace TamaguchiWebAPI.Controllers
             
             if(p != null)
             {
-                Response.StatusCode = (int)System.Net.HttpStatusCode.OK;
-                Response.WriteAsync("Login Successfully");
                 PlayerDTO pDTO = new PlayerDTO(p);
                 HttpContext.Session.SetObject("loggedin", pDTO);
+                Response.StatusCode = (int)System.Net.HttpStatusCode.OK;
                 return pDTO;
             }
             else
             {
                 Response.StatusCode = (int)System.Net.HttpStatusCode.Forbidden;
-                Response.WriteAsync("Login failed");
                 return null;
             }
 
@@ -53,9 +51,8 @@ namespace TamaguchiWebAPI.Controllers
         {
             if(HttpContext.Session.GetObject<PlayerDTO>("loggedin") != null)
             {
-                Response.StatusCode = (int)System.Net.HttpStatusCode.OK;
-                Response.WriteAsync("bye bye");
                 HttpContext.Session.Clear();
+                Response.StatusCode = (int)System.Net.HttpStatusCode.OK;
             }
             else
             {
@@ -63,7 +60,26 @@ namespace TamaguchiWebAPI.Controllers
             }
         }
 
-        
+
+        [Route("Lucas")]
+        [HttpGet]
+
+        public string Lucas()
+        {
+            Response.StatusCode = (int)System.Net.HttpStatusCode.Forbidden;
+            Response.WriteAsync("Lucas The King");
+            return "lucas The King";
+        }
+
+
+        [Route("IsLoggedin")]
+        [HttpGet]
+
+        public bool IsLoggedin()
+        {
+            return HttpContext.Session.GetObject<bool>("loggedin");
+        }
+
 
     }
 }

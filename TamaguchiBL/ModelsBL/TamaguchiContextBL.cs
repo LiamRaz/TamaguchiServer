@@ -14,9 +14,9 @@ namespace TamaguchiBL.Models
 
              try
             {
-
-                Player p = this.Players.Single((p => (p.Email == email || p.UserName == email) && p.Pass == pswd));
-                return p;
+                return this.Players.FirstOrDefault((p => (p.Email == email || p.UserName == email) && p.Pass == pswd));
+                //Player p = this.Players.Single((p => (p.Email == email || p.UserName == email) && p.Pass == pswd));
+                //return p;
             }
             catch (Exception e)
             {
