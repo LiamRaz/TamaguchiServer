@@ -155,5 +155,29 @@ namespace TamaguchiWebAPI.Controllers
 
         [Route ("AddActivity")]
         [HttpPost]
+        public ActivityDTO AddActivity([FromBody] ActivityDTO a)
+        {
+            Activity a1 = this.context.Activities.CreateProxy(new Activity
+            {
+                ActivityName = a.ActivityName,
+                CategoryId = a.CategoryId,
+                ImprovementHappiness = a.ImprovementHappiness,
+                ImprovementHunger = a.ImprovementHunger,
+                ImprovementHygiene = a.ImprovementHygiene
+            });
+            
+
+            try
+            {
+                this.context.Activities.Add(a1);
+                this.context.SaveChanges();
+                return a;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
     }
 }
