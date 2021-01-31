@@ -88,7 +88,7 @@ namespace TamaguchiWebAPI.Controllers
 
         public bool IsEmailExists([FromBody] string email)
         {
-
+            
             Player p = this.context.Players.FirstOrDefault(p => p.Email == email);
             if (p != null)
             {
@@ -140,5 +140,7 @@ namespace TamaguchiWebAPI.Controllers
             }
         }
 
+        [Route ("AddActivity")]
+        [HttpPost]
     }
 }

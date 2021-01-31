@@ -26,9 +26,6 @@ namespace TamaguchiBL.Models
         }
 
 
-
-        
-
         public void AddPlayer(Player p)//No exception is expected bc it has already been checked 
         {
             this.Players.Add(p);
