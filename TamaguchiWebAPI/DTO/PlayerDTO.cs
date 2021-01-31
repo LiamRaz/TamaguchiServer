@@ -21,6 +21,10 @@ namespace TamaguchiWebAPI.DTO
 
         public DateTime BirthDate { get; set; }
 
+        public string UserName { get; set; }
+
+        public string Pass { get; set; }
+
         public PlayerDTO()
         {
 
@@ -34,6 +38,8 @@ namespace TamaguchiWebAPI.DTO
             this.Email = p.Email;
             this.Gender = p.Gender;
             this.BirthDate = p.BirthDate;
+            this.UserName = p.UserName;
+            this.Pass = p.Pass;
         }
     }
 }

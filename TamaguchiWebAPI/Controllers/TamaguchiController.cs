@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using TamaguchiBL.Models;
 using TamaguchiWebAPI.DTO;
 using System.Net;
+using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
+
 
 namespace TamaguchiWebAPI.Controllers
 {
@@ -125,14 +128,24 @@ namespace TamaguchiWebAPI.Controllers
         [Route("AddPlayer")]
         [HttpPost]
 
-        public PlayerDTO AddPlayer([FromBody] Player p)
+        public PlayerDTO AddPlayer([FromBody] PlayerDTO p)
         {
-           
+            Player p1 = this.context.Players.CreateProxy(new Player
+            {
+                BirthDate = p.BirthDate,
+                Email = p.Email,
+                FirstName = p.FirstName,
+                Gender = p.Gender,
+                LastName = p.LastName,
+                Pass = p.Pass,
+                UserName = p.UserName
+            });
+
             try
             {
-                this.context.Players.Add(p);
+                this.context.Players.Add(p1);
                 this.context.SaveChanges();
-                return new PlayerDTO(p);
+                return p;
             }
             catch(Exception)
             {
