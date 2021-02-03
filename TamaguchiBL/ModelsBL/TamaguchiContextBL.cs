@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
 
 namespace TamaguchiBL.Models
 {
@@ -29,6 +30,7 @@ namespace TamaguchiBL.Models
         public void AddPlayer(Player p)//No exception is expected bc it has already been checked 
         {
             this.Players.Add(p);
+            this.SaveChanges();
             
         }
         public Activity GetFood(int foodCode)
@@ -99,7 +101,9 @@ namespace TamaguchiBL.Models
 
         public void AddActivity(Activity a)
         {
+            
             this.Activities.Add(a);
+            this.SaveChanges();
         }
 
 

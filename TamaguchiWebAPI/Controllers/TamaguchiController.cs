@@ -130,25 +130,28 @@ namespace TamaguchiWebAPI.Controllers
 
         public PlayerDTO AddPlayer([FromBody] PlayerDTO p)
         {
-            Player p1 = this.context.Players.CreateProxy(new Player
-            {
-                BirthDate = p.BirthDate,
-                Email = p.Email,
-                FirstName = p.FirstName,
-                Gender = p.Gender,
-                LastName = p.LastName,
-                Pass = p.Pass,
-                UserName = p.UserName
-            });
-
             try
             {
-                this.context.Players.Add(p1);
-                this.context.SaveChanges();
+                Player p1 = new Player(p.FirstName, p.LastName,
+                p.BirthDate, p.Gender, p.Email, p.UserName, p.Pass);
+                //Player p1 = this.context.Players.CreateProxy(new Player
+                //{
+                //    FirstName = p.FirstName,
+                //    LastName = p.LastName,
+                //    BirthDate = p.BirthDate, 
+                //    Gender = p.Gender,
+                //    Email = p.Email,
+                //    UserName = p.UserName,
+                //    Pass = p.Pass
+
+                //});
+
+                this.context.AddPlayer(p1);
                 return p;
             }
             catch (Exception)
             {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
@@ -157,20 +160,12 @@ namespace TamaguchiWebAPI.Controllers
         [HttpPost]
         public ActivityDTO AddActivity([FromBody] ActivityDTO a)
         {
-            Activity a1 = this.context.Activities.CreateProxy(new Activity
-            {
-                ActivityName = a.ActivityName,
-                CategoryId = a.CategoryId,
-                ImprovementHappiness = a.ImprovementHappiness,
-                ImprovementHunger = a.ImprovementHunger,
-                ImprovementHygiene = a.ImprovementHygiene
-            });
-
-
             try
             {
-                this.context.Activities.Add(a1);
-                this.context.SaveChanges();
+                Activity a1 = new Activity(a.ActivityName, a.CategoryId,
+                a.ImprovementHappiness, a.ImprovementHunger, a.ImprovementHygiene);
+
+                this.context.AddActivity(a1);
                 return a;
             }
             catch (Exception)
@@ -182,22 +177,33 @@ namespace TamaguchiWebAPI.Controllers
         [Route("GetActivityHistory")]
         [HttpPost]
 
-        public List<ActivityHistoryDTO> GetActivitiyHistory([FromBody] UserDTO user)
+        public List<ActivityHistoryDTO> GetActivitiyHistory()
         {
-            Player p = this.context.Players.FirstOrDefault(p1 => p1.Email == user.Email);
-            if (p.CurrentPet != null)
+
+            PlayerDTO p1 = HttpContext.Session.GetObject<PlayerDTO>("loggedin");
+            if (p1 != null)
             {
-                List<ActivitiesHistory> lah = this.context.ActivitiesHistories.Where(p2 => p2.PetCode == p.CurrentPetId).ToList();
-
-                List<ActivityHistoryDTO> lahd = new List<ActivityHistoryDTO>();
-
-                foreach (ActivitiesHistory ah in lah)
+                Player p = this.context.Players.Single(p => p.Email == p1.Email);
+                
+                if (p.CurrentPet != null)
                 {
-                    lahd.Add(new ActivityHistoryDTO { ActivityDate = ah.ActivityDate, ActivityName = ah.ActivityCodeNavigation.ActivityName, PetWeight = ah.PetWeight, Age = ah.Age });
-                }
+                    List<ActivitiesHistory> lah = this.context.ActivitiesHistories.Where(p2 => p2.PetCode == p.CurrentPetId).ToList();
 
-                Response.StatusCode = (int)HttpStatusCode.OK;
-                return lahd;
+                    List<ActivityHistoryDTO> lahd = new List<ActivityHistoryDTO>();
+
+                    foreach (ActivitiesHistory ah in lah)
+                    {
+                        lahd.Add(new ActivityHistoryDTO { ActivityDate = ah.ActivityDate, ActivityName = ah.ActivityCodeNavigation.ActivityName, PetWeight = ah.PetWeight, Age = ah.Age });
+                    }
+
+                    Response.StatusCode = (int)HttpStatusCode.OK;
+                    return lahd;
+                }
+                else
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return null;
+                }
 
             }
             else

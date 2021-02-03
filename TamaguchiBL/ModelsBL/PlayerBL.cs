@@ -3,13 +3,22 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-     
+
 
 namespace TamaguchiBL.Models
 {
     public partial class Player
     {
-        
+        public Player(string fName, string lName, DateTime birthDate, string gen, string email, string uName, string pass)
+        {
+            BirthDate = birthDate;
+            Email = email;
+            FirstName = fName;
+            Gender = gen;
+            LastName = lName;
+            Pass = pass;
+            UserName = uName;
+        }
 
         public List<object> GetPetStats()
         {
@@ -27,14 +36,14 @@ namespace TamaguchiBL.Models
                     lifeCycle = p.LifeCycleCodeNavigation.CycleName,
                     Health = p.HealthCodeNavigation.HealthName
                 }).ToList<object>();
-              
+
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine("Restart your application!");
                 return null;
             }
-            
+
 
         }
 
