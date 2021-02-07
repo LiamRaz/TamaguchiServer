@@ -214,5 +214,31 @@ namespace TamaguchiWebAPI.Controllers
 
 
         }
+
+
+        [Route("/GetPets")]
+        [HttpGet]
+
+        public List<object> GetPets()
+        {
+
+            PlayerDTO p1 = HttpContext.Session.GetObject<PlayerDTO>("loggedin");
+
+            if(p1!= null)
+            {
+                Player p = this.context.Players.Single(p => p.Email == p1.Email);
+                List<object> lst = p.GetPetStats();
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                return lst;
+            }
+            else
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
+
+        }
+
+
     }
 }
