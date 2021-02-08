@@ -76,29 +76,26 @@ namespace TamaguchiWebAPI.Controllers
         }
 
 
-        [Route("IsLoggedin")]
-        [HttpGet]
-
-        public bool IsLoggedin()
-        {
-            return HttpContext.Session.GetObject<bool>("loggedin");
-        }
-
-
-
         [Route("IsEmailExists")]
         [HttpPost]
 
         public bool IsEmailExists([FromBody] string email)
         {
-
-            Player p = this.context.Players.FirstOrDefault(p => p.Email == email);
-            if (p != null)
+            try
             {
-                Response.StatusCode = (int)HttpStatusCode.OK;
-                return true;
+                Player p = this.context.Players.FirstOrDefault(p => p.Email == email);
+                if (p != null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.OK;
+                    return true;
+                }
+                else
+                {
+                    Response.StatusCode = (int)HttpStatusCode.OK;
+                    return false;
+                }
             }
-            else
+            catch(Exception)
             {
                 Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return false;
@@ -111,13 +108,21 @@ namespace TamaguchiWebAPI.Controllers
 
         public bool IsUserNameExists([FromBody] string userName)
         {
-            Player p = this.context.Players.FirstOrDefault(p => p.UserName == userName);
-            if (p != null)
+            try
             {
-                Response.StatusCode = (int)HttpStatusCode.OK;
-                return true;
+                Player p = this.context.Players.FirstOrDefault(p => p.UserName == userName);
+                if (p != null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.OK;
+                    return true;
+                }
+                else
+                {
+                    Response.StatusCode = (int)HttpStatusCode.OK;
+                    return false;
+                }
             }
-            else
+            catch(Exception)
             {
                 Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return false;
@@ -134,17 +139,6 @@ namespace TamaguchiWebAPI.Controllers
             {
                 Player p1 = new Player(p.FirstName, p.LastName,
                 p.BirthDate, p.Gender, p.Email, p.UserName, p.Pass);
-                //Player p1 = this.context.Players.CreateProxy(new Player
-                //{
-                //    FirstName = p.FirstName,
-                //    LastName = p.LastName,
-                //    BirthDate = p.BirthDate, 
-                //    Gender = p.Gender,
-                //    Email = p.Email,
-                //    UserName = p.UserName,
-                //    Pass = p.Pass
-
-                //});
 
                 this.context.AddPlayer(p1);
                 return p;
@@ -170,6 +164,7 @@ namespace TamaguchiWebAPI.Controllers
             }
             catch (Exception)
             {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
@@ -179,64 +174,91 @@ namespace TamaguchiWebAPI.Controllers
 
         public List<ActivityHistoryDTO> GetActivitiyHistory()
         {
-
-            PlayerDTO p1 = HttpContext.Session.GetObject<PlayerDTO>("loggedin");
-            if (p1 != null)
+            try
             {
-                Player p = this.context.Players.Single(p => p.Email == p1.Email);
-                
-                if (p.CurrentPet != null)
+
+                PlayerDTO p1 = HttpContext.Session.GetObject<PlayerDTO>("loggedin");
+                if (p1 != null)
                 {
-                    List<ActivitiesHistory> lah = this.context.ActivitiesHistories.Where(p2 => p2.PetCode == p.CurrentPetId).ToList();
-
-                    List<ActivityHistoryDTO> lahd = new List<ActivityHistoryDTO>();
-
-                    foreach (ActivitiesHistory ah in lah)
+                    Player p = this.context.Players.FirstOrDefault<Player>(p => p1.Email == p.Email);
+                    if (p.CurrentPet != null)
                     {
-                        lahd.Add(new ActivityHistoryDTO { ActivityDate = ah.ActivityDate, ActivityName = ah.ActivityCodeNavigation.ActivityName, PetWeight = ah.PetWeight, Age = ah.Age });
+                        List<ActivityHistoryDTO> lst = p.CurrentPet.ActivitiesHistories.OrderByDescending(a => a.ActivityDate).Select(aH => new ActivityHistoryDTO
+                        {
+
+                            Name = aH.ActivityCodeNavigation.ActivityName,
+                            Age = aH.Age,
+                            Date = aH.ActivityDate,
+                            CategoryName = aH.ActivityCodeNavigation.Category.CategoryName,
+                            LifeCycle = aH.PetCodeNavigation.LifeCycleCodeNavigation.CycleName
+
+                        }).ToList<ActivityHistoryDTO>();
+
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        return lst;
+                    }
+                    else
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        return null;
                     }
 
-                    Response.StatusCode = (int)HttpStatusCode.OK;
-                    return lahd;
                 }
                 else
                 {
                     Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     return null;
                 }
-
             }
-            else
+            catch(Exception)
             {
                 Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
-
-
         }
 
 
-        [Route("/GetPets")]
+
+        [Route("GetPets")]
         [HttpGet]
 
-        public List<object> GetPets()
+        public List<PetStatsDTO> GetPets()
         {
-
-            PlayerDTO p1 = HttpContext.Session.GetObject<PlayerDTO>("loggedin");
-
-            if(p1!= null)
+            try
             {
-                Player p = this.context.Players.Single(p => p.Email == p1.Email);
-                List<object> lst = p.GetPetStats();
-                Response.StatusCode = (int)HttpStatusCode.OK;
-                return lst;
+                PlayerDTO p1 = HttpContext.Session.GetObject<PlayerDTO>("loggedin");
+
+                if (p1 != null)
+                {
+                    Player p = this.context.Players.FirstOrDefault<Player>(p => p1.Email == p.Email);
+                    List<PetStatsDTO> pets = p.Pets.Select(pet => new PetStatsDTO
+                    {
+                        Name = pet.PetName,
+                        Age = pet.Age,
+                        BirthDate = pet.BirthDate,
+                        Happiness = pet.HappinessStatus,
+                        Hunger = pet.HungerStatus,
+                        Hygiene = pet.HygieneStatus,
+                        Weight = pet.PetWeight,
+                        LifeCycle = pet.LifeCycleCodeNavigation.CycleName,
+                        Health = pet.HealthCodeNavigation.HealthName
+
+                    }).ToList<PetStatsDTO>();
+
+                    Response.StatusCode = (int)HttpStatusCode.OK;
+                    return pets;
+                }
+                else
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return null;
+                }
             }
-            else
+            catch(Exception)
             {
                 Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
-
         }
 
 

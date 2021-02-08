@@ -30,9 +30,9 @@ namespace TamaguchiBL.Models
 
         }
 
-        public List<object> GetActivityHistory(int option)
+        public List<object> GetActivityHistory()
         {
-            return this.ActivitiesHistories.OrderByDescending(a => a.ActivityDate).Take(option).Select(a => new
+            return this.ActivitiesHistories.OrderByDescending(a => a.ActivityDate).Select(a => new
             {
                 name = this.PetName,
                 date = a.ActivityDate,
